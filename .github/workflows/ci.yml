@@ -59,6 +59,10 @@ jobs:
           npx prisma migrate deploy
         working-directory: ./backend
 
+      - name: Sync schema to DB
+        run: npx prisma db push
+        working-directory: ./backend
+
       - name: Seed database
         run: node scripts/seedCities.js
         working-directory: ./backend
