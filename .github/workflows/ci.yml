@@ -1,4 +1,4 @@
-# .github/workflows/ci.yml
+
 name: CI
 
 on:
@@ -63,4 +63,3 @@ jobs:
       - name: Run tests
         run: npm test
         working-directory: ./backend
-
