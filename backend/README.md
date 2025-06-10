@@ -1,135 +1,99 @@
 # Weather Dashboard Backend
 
-Este repositorio contiene la implementación del **backend** del Weather Dashboard, construido con Node.js, Express, Redis y PostgreSQL, utilizando Prisma como ORM. Hasta ahora incluye:
-
-* **Healthcheck**: endpoint para verificar que el servicio está activo.
-* **Current Weather**: obtiene el clima actual de OpenWeatherMap y lo cachea en Redis.
-* **Search History**: persiste cada búsqueda en PostgreSQL con Prisma.
-* **Favorites CRUD**: permite agregar, listar y eliminar ciudades favoritas.
-* **Pruebas Automatizadas**: tests con Jest y Supertest.
-* **Contenerización**: Dockerfile y Docker Compose para Redis, Postgres y backend.
+This Express.js service provides weather data, history, and user favorites, fully containerized via Docker Compose.
 
 ---
 
-## Tech Stack
+## 🔥 Quick Start with Docker
 
-* **Runtime:** Node.js 18
-* **Framework:** Express
-* **Cache:** Redis
-* **Base de datos:** PostgreSQL
-* **ORM:** Prisma
-* **Testing:** Jest + Supertest
-* **Contenerización:** Docker & Docker Compose
+1. **Clone repo** and `cd backend` (if not already there).
+2. Create and edit `.env`:
 
----
-
-## Estructura de Proyecto
-
-```
-backend/
-├── Dockerfile
-├── docker-compose.yml   # Orquestación de Redis, Postgres y backend
-├── package.json
-├── .env.example
-├── index.js             # App Express + configuración
-├── prisma/
-│   └── schema.prisma    # Esquema de DataSource y modelos
-├── src/
-│   ├── routes/
-│   │   └── weather.js
-│   ├── controllers/
-│   │   └── weatherController.js
-│   ├── services/
-│   │   ├── openWeatherService.js
-│   │   ├── historyService.js
-│   │   └── favoriteService.js
-│   └── middleware/
-│       └── cache.js
-└── tests/
-    ├── weather.test.js
-    └── favorites.test.js
-```
-
----
-
-## Variables de Entorno
-
-Copia el archivo de ejemplo y ajusta tus credenciales:
-
-```bash
-cp .env.example .env
-```
-
-* `OPENWEATHER_API_KEY` – tu clave de OpenWeatherMap.
-* `REDIS_URL` – e.g. `redis://localhost:6379` o `redis://redis:6379` en Docker.
-* `DATABASE_URL` – e.g. `postgresql://weather_user:strongpassword@localhost:5432/weatherdb` o `postgresql://weather_user:strongpassword@db:5432/weatherdb` en Docker.
-
----
-
-## Instalación y Ejecución Local
-
-1. Instala dependencias:
+   ```dotenv
+   OPENWEATHER_API_KEY=your_openweather_api_key
+   REDIS_URL=redis://redis:6379
+   DATABASE_URL=postgresql://weather_user:strongpassword@db:5432/weatherdb
+   ```
+3. From the repo root (where `docker-compose.yml` lives), run:
 
    ```bash
-   cd backend
-   npm install
+   docker-compose up --build -d
    ```
-2. Genera cliente Prisma y aplica migraciones:
-
-   ```bash
-   npx prisma generate
-   npx prisma migrate dev --name init
-   ```
-3. Arranca el servidor en modo desarrollo:
-
-   ```bash
-   npm run dev
-   ```
-4. Verifica endpoints:
+4. Verify services:
 
    ```bash
    curl http://localhost:3000/health
-   curl http://localhost:3000/api/weather/current/London
-   curl http://localhost:3000/api/weather/history
+   # { "status": "ok" }
    ```
 
 ---
 
-## Docker Compose
+## 🧪 Running Tests
 
-Para levantar todo con Docker:
-
-```bash
-# Desde la raíz del proyecto (donde está docker-compose.yml)
-
-docker-compose up --build -d
-```
-
-* **Redis** en `6379`
-* **Postgres** en `5432`
-* **Backend** en `3000`
-
----
-
-## Pruebas
-
-Ejecuta los tests unitarios y de integración:
+All tests use Jest + Supertest, run inside Docker:
 
 ```bash
-npm test
+# Ensure db & redis are up
+docker-compose up -d db redis
+# Apply migrations
+docker-compose run --rm backend npx prisma migrate deploy
+# Run test suite
+docker-compose run --rm backend npm test
 ```
 
 ---
 
-## Endpoints Disponibles
+## 📚 Environment Variables
 
-| Método | Ruta                         | Descripción                              |
-| ------ | ---------------------------- | ---------------------------------------- |
-| GET    | `/health`                    | Verifica que el servicio esté activo.    |
-| GET    | `/api/weather/current/:city` | Clima actual para `:city` (cache Redis). |
-| GET    | `/api/weather/history`       | Historial de búsquedas (PostgreSQL).     |
-| POST   | `/api/weather/favorites`     | Agrega ciudad favorita.                  |
-| GET    | `/api/weather/favorites`     | Lista ciudades favoritas.                |
-| DELETE | `/api/weather/favorites/:id` | Elimina ciudad favorita por ID.          |
+| Variable              | Description                  |
+| --------------------- | ---------------------------- |
+| `OPENWEATHER_API_KEY` | OpenWeatherMap API key       |
+| `REDIS_URL`           | Redis connection string      |
+| `DATABASE_URL`        | PostgreSQL connection string |
 
 ---
+
+## 🚀 API Endpoints
+
+### Weather
+
+| Method | URL                           | Description          | Response Example                 |
+| ------ | ----------------------------- | -------------------- | -------------------------------- |
+| GET    | `/api/weather/current/:city`  | Current weather data | Raw OWM JSON payload             |
+| GET    | `/api/weather/forecast/:city` | 5-day forecast       | `{ list: [ { dt: ..., ... } ] }` |
+
+### Autocomplete
+
+| Method | URL                            | Description               | Response                                          |
+| ------ | ------------------------------ | ------------------------- | ------------------------------------------------- |
+| GET    | `/api/weather/cities?q={term}` | City name search (max 10) | `[ { id, name, state, country, lat, lon }, ... ]` |
+
+### Favorites
+
+| Method | URL                          | Description     | Body / Response                             |
+| ------ | ---------------------------- | --------------- | ------------------------------------------- |
+| POST   | `/api/weather/favorites`     | Add a favorite  | Body: `{ city, country? }`                  |
+|        |                              |                 | 201: `{ id, city, country, addedAt }`       |
+|        |                              |                 | 400: validation errors                      |
+|        |                              |                 | 409: `{ error: 'Favorite already exists' }` |
+| GET    | `/api/weather/favorites`     | List favorites  | `[ { id, city, country, addedAt }, ... ]`   |
+| DELETE | `/api/weather/favorites/:id` | Remove favorite | 204 on success; 400/500 on error            |
+
+### History
+
+| Method | URL                    | Description       | Response                                           |
+| ------ | ---------------------- | ----------------- | -------------------------------------------------- |
+| GET    | `/api/weather/history` | Search history    | `[ { id, city, country, searchedAt, data }, ... ]` |
+| DELETE | `/api/weather/history` | Clear all history | 204 No Content                                     |
+
+---
+
+## ⚙️ Additional Features
+
+* **Input validation & sanitization** with `express-validator`.
+* **Centralized error-handling** middleware for JSON errors and 404.
+* **Rate limiting** via `express-rate-limit` (60 requests/min per IP).
+* **Response caching** on `/current` and `/forecast` using Redis (5 min TTL).
+* **Async wrapper** ensures all route handlers propagate errors properly.
+
+
