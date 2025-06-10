@@ -1,17 +1,22 @@
-// tests/weather.test.js
 import request from 'supertest';
-import app from '../index.js';    // your Express `export default app;`
+import app from '../index.js';
 
-describe('Weather API', () => {
-  test('GET /health → 200 OK', async () => {
-    const res = await request(app).get('/health');
+describe('Forecast API', () => {
+  it('GET /api/weather/forecast/:city → 200 + list[]', async () => {
+    const res = await request(app).get('/api/weather/forecast/London');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: 'ok' });
+    // La API de OpenWeatherMap devuelve un objeto con la propiedad `list` como array de forecasts
+    expect(res.body).toHaveProperty('list');
+    expect(Array.isArray(res.body.list)).toBe(true);
   });
 
-  test('GET /api/weather/current/London → has weather[]', async () => {
-    const res = await request(app).get('/api/weather/current/London');
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.weather)).toBe(true);
+  it('Cachea la segunda llamada', async () => {
+    // Primera llamada para poblar cache
+    const first = await request(app).get('/api/weather/forecast/Paris');
+    expect(first.status).toBe(200);
+    // Segunda llamada: debería devolver el mismo JSON
+    const second = await request(app).get('/api/weather/forecast/Paris');
+    expect(second.status).toBe(200);
+    expect(second.body).toEqual(first.body);
   });
 });

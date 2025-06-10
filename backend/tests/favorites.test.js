@@ -14,7 +14,7 @@ describe('Favorites API', () => {
     favId = res.body.id;
   });
 
-  it('GET /api/weather/favorites → array includes the new favorite', async () => {
+  it('GET /api/weather/favorites → includes the new favorite', async () => {
     const res = await request(app).get('/api/weather/favorites');
     expect(res.status).toBe(200);
     expect(res.body.some(f => f.id === favId)).toBe(true);
@@ -23,5 +23,20 @@ describe('Favorites API', () => {
   it('DELETE /api/weather/favorites/:id → 204', async () => {
     const res = await request(app).delete(`/api/weather/favorites/${favId}`);
     expect(res.status).toBe(204);
+  });
+
+  // new validation tests:
+
+  it('POST /api/weather/favorites without city → 400 + error message', async () => {
+    const res = await request(app)
+      .post('/api/weather/favorites')
+      .send({ country: 'US' });
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'city is required' });
+  });
+
+  it('DELETE non-existent favorite → 500', async () => {
+    const res = await request(app).delete('/api/weather/favorites/999999');
+    expect(res.status).toBe(500);
   });
 });

@@ -1,7 +1,7 @@
-// src/controllers/weatherController.js
-import { fetchCurrentWeather } from '../services/openWeatherService.js';
 import { redisClient } from '../../index.js';
 import { saveSearch } from '../services/historyService.js';
+import { fetchCurrentWeather, fetchForecast } from '../services/openWeatherService.js';
+
 import { PrismaClient } from '@prisma/client';
 import {
   addFavorite,
@@ -25,8 +25,13 @@ export async function getFavorites(req, res) {
 
 export async function deleteFavorite(req, res) {
   const { id } = req.params;
-  await removeFavorite(id);
-  res.status(204).send();
+  try {
+    await removeFavorite(id);
+    return res.status(204).send();
+  } catch (err) {
+    // Prisma throws if no record to delete ⇒ return 500 per your test
+    return res.status(500).json({ error: 'Failed to delete favorite' });
+  }
 }
 
 const prisma = new PrismaClient();
@@ -52,4 +57,13 @@ export async function getCurrentWeather(req, res) {
   }
 
 }
-
+export async function getForecast(req, res) {
+  const city = req.params.city;
+  try {
+    const data = await fetchForecast(city);
+    return res.json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to fetch forecast data' });
+  }
+}
