@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from './components/Header';
 import WeatherCard from './components/WeatherCard';
 import ForecastList from './components/ForecastList';
 import FavoritesList from './components/FavoritesList';
 import WeatherHistory from './components/WeatherHistory';
+import Loader from './components/Loader';
 
 import styles from './App.module.css';
+import { useWeather } from './context/WeatherContext';
 
 function App() {
-  const [unit, setUnit] = useState('metric'); // 'metric' or 'imperial'
-
-  const toggleUnit = () => {
-    setUnit((prev) => (prev === 'metric' ? 'imperial' : 'metric'));
-  };
+  const { unit, toggleUnit, loading } = useWeather();
 
   return (
     <div className={styles.container}>
+      {loading && <Loader />}
       <Header unit={unit} onToggleUnit={toggleUnit} />
       <main className={styles.main}>
         <section>

@@ -2,9 +2,11 @@ import React from 'react';
 import SearchBar from './SearchBar';
 import styles from './Header.module.css';
 import { LuThermometer, LuCloud } from "react-icons/lu";
+import { useWeather } from '../context/WeatherContext';
 
+function Header() {
+  const { unit, toggleUnit } = useWeather();
 
-function Header({ unit, onToggleUnit }) {
   return (
     <header className={styles.header}>
       <div className={styles.topRow}>
@@ -18,7 +20,7 @@ function Header({ unit, onToggleUnit }) {
             <input
               type="checkbox"
               checked={unit === 'imperial'}
-              onChange={onToggleUnit}
+              onChange={toggleUnit}
             />
             °F
           </label>

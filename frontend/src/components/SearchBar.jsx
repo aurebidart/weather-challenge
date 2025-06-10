@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import styles from './SearchBar.module.css';
-import { FiSearch } from 'react-icons/fi';
+import { LuSearch } from 'react-icons/lu';
+import { useWeather } from '../context/WeatherContext'; // ✅ contexto
 
-function SearchBar({ onSearch = () => { } }) {
+function SearchBar() {
     const [city, setCity] = useState('');
+    const { searchCity } = useWeather(); // ✅ función desde contexto
 
     const handleSearch = () => {
         const trimmed = city.trim();
         if (trimmed) {
-            onSearch(trimmed);
+            searchCity(trimmed); // ✅ invoca al fetch
             setCity('');
         }
     };
@@ -28,7 +30,7 @@ function SearchBar({ onSearch = () => { } }) {
                     onKeyDown={handleKeyDown}
                 />
                 <span className={styles.icon} onClick={handleSearch}>
-                    <FiSearch />
+                    <LuSearch />
                 </span>
             </div>
             <div className={styles.placeholder}>

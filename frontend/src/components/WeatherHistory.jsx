@@ -1,8 +1,13 @@
 import React from 'react';
 import styles from './WeatherHistory.module.css';
 import { LuClock, LuTrash2 } from 'react-icons/lu';
+import { useWeather } from '../context/WeatherContext';
 
-function WeatherHistory({ history = [], onSelect = () => { }, onClear = () => { } }) {
+function WeatherHistory({ onSelect = () => {} }) {
+    const { history, clearHistory, searchCity } = useWeather();
+
+    
+
     return (
         <div className={styles.card}>
             <h4>
@@ -17,14 +22,14 @@ function WeatherHistory({ history = [], onSelect = () => { }, onClear = () => { 
                             <li key={entry.id}>
                                 <button
                                     className={styles.city}
-                                    onClick={() => onSelect(entry.city_name)}
+                                    onClick={() => searchCity(entry.city)}
                                 >
-                                    {entry.city_name}, {entry.country_code}
+                                    {entry.city}, {entry.country}
                                 </button>
                             </li>
                         ))}
                     </ul>
-                    <button className={styles.clear} onClick={onClear}>
+                    <button className={styles.clear} onClick={clearHistory}>
                         <LuTrash2 className={styles.trashIcon} /> Clear History
                     </button>
                 </>
