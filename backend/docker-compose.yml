@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: weather-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+  db:
+    image: postgres:latest
+    container_name: weather-postgres
+    environment:
+      POSTGRES_USER: weather_user
+      POSTGRES_PASSWORD: strongpassword
+      POSTGRES_DB: weatherdb
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./
+    container_name: weather-backend
+    env_file:
+      - ./.env
+    ports:
+      - '3000:3000'
+    depends_on:
+      - redis
+      - db
+    restart: unless-stopped
+
+volumes:
+  redisdata:
+  pgdata:
