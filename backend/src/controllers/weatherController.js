@@ -9,13 +9,19 @@ import {
   removeFavorite
 } from '../services/favoriteService.js';
 
-export async function createFavorite(req, res) {
+
+export async function createFavorite(req, res, next) {
   const { city, country } = req.body;
-  if (!city) {
-    return res.status(400).json({ error: 'city is required' });
+  try {
+    const favorite = await addFavorite(city, country);
+    return res.status(201).json(favorite);
+  } catch (err) {
+    // P2002 = unique constraint violation
+    if (err.code === 'P2002') {
+      return res.status(409).json({ error: 'Favorite already exists' });
+    }
+    next(err);
   }
-  const favorite = await addFavorite(city, country);
-  res.status(201).json(favorite);
 }
 
 export async function getFavorites(req, res) {

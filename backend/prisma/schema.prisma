@@ -26,6 +26,7 @@ model FavoriteCity {
   city      String
   country   String?
   addedAt   DateTime @default(now())
+  @@unique([city, country])
 }
 model City {
   id      Int     @id               // the OWM city ID
@@ -37,3 +38,4 @@ model City {
 
   @@index([name, country])
 }
+
