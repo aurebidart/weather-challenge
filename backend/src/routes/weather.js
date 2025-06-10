@@ -1,24 +1,45 @@
 // src/routes/weather.js
+import { query, validationResult } from 'express-validator';
+import { searchCities } from '../controllers/cityController.js';
 import express from 'express';
-import { getCurrentWeather, getForecast } from '../controllers/weatherController.js';
 import { cache } from '../middleware/cache.js';
-const router = express.Router();
-import { getHistory } from '../controllers/weatherController.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 import {
   createFavorite,
   getFavorites,
-  deleteFavorite
+  deleteFavorite,
+  getHistory,
+  getCurrentWeather,
+  getForecast
 } from '../controllers/weatherController.js';
 
-router.get('/forecast/:city', cache, getForecast);
+const router = express.Router();
 
-router.post('/favorites', createFavorite);
+router.get('/forecast/:city', cache,asyncHandler(getForecast));
 
-router.get('/favorites', getFavorites);
+router.post('/favorites', asyncHandler(createFavorite));
 
-router.delete('/favorites/:id', deleteFavorite);
+router.get('/favorites', asyncHandler(getFavorites));
 
-router.get('/history', getHistory);
+router.delete('/favorites/:id', asyncHandler(deleteFavorite));
+
+router.get('/history', asyncHandler(getHistory));
+
+
+router.get(
+  '/cities',
+  query('q')
+    .trim()
+    .notEmpty().withMessage('q is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+  searchCities
+);
 
 
 router.get(

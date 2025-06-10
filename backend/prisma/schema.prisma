@@ -27,3 +27,13 @@ model FavoriteCity {
   country   String?
   addedAt   DateTime @default(now())
 }
+model City {
+  id      Int     @id               // the OWM city ID
+  name    String
+  state   String?                 // may be empty
+  country String                  // ISO country code
+  lat     Float                   // coord.lat
+  lon     Float                   // coord.lon
+
+  @@index([name, country])
+}

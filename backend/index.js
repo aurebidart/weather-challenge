@@ -21,7 +21,6 @@ app.use(rateLimit({ windowMs: 60_000, max: 60 }));
 export const redisClient = new Redis(process.env.REDIS_URL);
 app.use('/api/weather', weatherRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
-
 // only start listening if not in test mode
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
