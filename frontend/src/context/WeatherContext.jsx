@@ -110,7 +110,19 @@ export function WeatherProvider({ children }) {
         }
     };
 
-    const clearHistory = () => setHistory([]);
+    const clearHistory = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/weather/history', {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error('Failed to clear history');
+
+            setHistory([]);
+        } catch (err) {
+            console.error('Error clearing history:', err);
+        }
+    };
+
     const toggleUnit = () =>
         setUnit((prev) => (prev === 'metric' ? 'imperial' : 'metric'));
 
@@ -123,6 +135,7 @@ export function WeatherProvider({ children }) {
                 history,
                 unit,
                 addFavorite,
+                clearHistory,
                 searchCity,
                 clearHistory,
                 toggleUnit,
