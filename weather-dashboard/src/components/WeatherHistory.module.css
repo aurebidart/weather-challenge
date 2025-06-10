@@ -1,0 +1,67 @@
+.card {
+    background: white;
+    color: #111;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+h4 {
+    margin-bottom: 0.5rem;
+}
+
+.empty {
+    color: gray;
+    font-size: 0.9rem;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+.city {
+    background: none;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.clear {
+    background: none;
+    border: none;
+    color: red;
+    margin-top: 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.clockIcon {
+    font-size: 1.1rem;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
+.trashIcon {
+    font-size: 1rem;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    color: red;
+}
+
+.clear {
+    background: none;
+    border: none;
+    color: red;
+    margin-top: 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
