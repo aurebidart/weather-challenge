@@ -1,6 +1,6 @@
 // src/routes/weather.js
 import { query, validationResult } from 'express-validator';
-import { searchCities } from '../controllers/cityController.js';
+import { searchCities  } from '../controllers/cityController.js';
 import express from 'express';
 import { cache } from '../middleware/cache.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
@@ -10,7 +10,8 @@ import {
   deleteFavorite,
   getHistory,
   getCurrentWeather,
-  getForecast
+  getForecast,
+  deleteHistory
 } from '../controllers/weatherController.js';
 
 const router = express.Router();
@@ -24,6 +25,8 @@ router.get('/favorites', asyncHandler(getFavorites));
 router.delete('/favorites/:id', asyncHandler(deleteFavorite));
 
 router.get('/history', asyncHandler(getHistory));
+
+router.delete('/history', asyncHandler(deleteHistory));
 
 
 router.get(

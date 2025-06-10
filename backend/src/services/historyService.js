@@ -6,3 +6,7 @@ export async function saveSearch(city, country, data) {
     data: { city, country, data }
   });
 }
+export async function deleteAllHistory() {
+  // Deletes every record in the weatherHistory table
+  return prisma.weatherHistory.deleteMany({});
+}

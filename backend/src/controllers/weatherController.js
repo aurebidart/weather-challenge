@@ -1,5 +1,5 @@
 import { redisClient } from '../../index.js';
-import { saveSearch } from '../services/historyService.js';
+import { saveSearch, deleteAllHistory } from '../services/historyService.js';
 import { fetchCurrentWeather, fetchForecast } from '../services/openWeatherService.js';
 
 import { PrismaClient } from '@prisma/client';
@@ -9,14 +9,26 @@ import {
   removeFavorite
 } from '../services/favoriteService.js';
 
+export async function deleteHistory(req, res, next) {
+  try {
+    await deleteAllHistory();
+    // 204 No Content on successful wipe
+    return res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function createFavorite(req, res, next) {
   const { city, country } = req.body;
+  // 1) Input validation
+  if (!city) {
+    return res.status(400).json({ error: 'city is required' });
+  }
   try {
     const favorite = await addFavorite(city, country);
     return res.status(201).json(favorite);
   } catch (err) {
-    // P2002 = unique constraint violation
     if (err.code === 'P2002') {
       return res.status(409).json({ error: 'Favorite already exists' });
     }
