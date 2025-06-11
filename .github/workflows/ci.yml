@@ -60,7 +60,7 @@ jobs:
         working-directory: ./backend
 
       - name: Sync schema to DB
-        run: npx prisma db push
+        run: npx prisma db push --accept-data-loss
         working-directory: ./backend
 
       - name: Seed database
