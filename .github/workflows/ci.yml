@@ -39,6 +39,7 @@ jobs:
       REDIS_URL: redis://localhost:6379
       DATABASE_URL: postgresql://weather_user:strongpassword@localhost:5432/weatherdb
       NODE_ENV: test
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
 
     steps:
       - name: Checkout code
